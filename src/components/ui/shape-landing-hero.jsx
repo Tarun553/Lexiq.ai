@@ -4,6 +4,10 @@ import { Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {Button} from "../ui/button"
 import { useTheme } from "./theme-toggle";
+import { Link } from "react-router-dom";
+import { useAuth } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+
 
 function ElegantShape({
     className,
@@ -68,6 +72,9 @@ function HeroGeometric({
     title1 = "create Amazing Content With",
     title2 = "AI Tools"
 }) {
+    const { isSignedIn } = useAuth();
+const navigate = useNavigate();
+
     const fadeUpVariants = {
         hidden: { opacity: 0, y: 30 },
         visible: (i) => ({
@@ -163,10 +170,24 @@ function HeroGeometric({
         Write Articles, Generate Images and Enhance Your Workflow With Lexiq.ai
     </p>
     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8 w-full">
-        <Button className="px-8 py-6 text-base font-medium bg-gradient-to-r from-indigo-500 to-rose-500 hover:from-indigo-600 hover:to-rose-600 transition-all duration-300 transform hover:scale-105">
+        <Link to="/ai/dashboard">
+        <Button onClick={() => {
+    if (isSignedIn) {
+      navigate("/ai/dashboard");
+    } else {
+      navigate("/auth");
+    }
+  }} className="px-8 py-6 text-base font-medium bg-gradient-to-r from-indigo-500 to-rose-500 hover:from-indigo-600 hover:to-rose-600 transition-all duration-300 transform hover:scale-105">
             Start Creating Now
         </Button>
-        <Button variant="outline" className="px-8 py-6 text-base font-medium border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
+        </Link>
+        <Button  onClick={() => {
+    if (isSignedIn) {
+      navigate("/ai/dashboard");
+    } else {
+      navigate("/auth");
+    }
+  }} variant="outline" className="px-8 py-6 text-base font-medium border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
             Watch Demo
         </Button>
     </div>
