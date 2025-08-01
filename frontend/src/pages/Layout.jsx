@@ -9,7 +9,7 @@ const Layout = () => {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
-      <div className="w-64 bg-gray-100 dark:bg-gray-800 p-4 flex flex-col">
+      <div className="w-64 h-screen sticky top-0 bg-gray-100 dark:bg-gray-800 p-4 flex flex-col">
         <div className="flex-1">
           <h2 className="text-xl font-bold mb-6">AI Tools</h2>
           <nav className="space-y-2">

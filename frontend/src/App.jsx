@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Home from "./pages/Home";
 import { ThemeProvider } from "./components/ui/theme-toggle";
 import {
@@ -17,25 +17,13 @@ import RemoveObj from "./pages/RemoveObj";
 import ReviewResume from "./pages/ReviewResume";
 import Auth from "./pages/Auth";
 import PrivateRoute from "./components/PrivateRoute";
-import { useAuth } from "@clerk/clerk-react";
+import {Toaster} from "react-hot-toast";
 const App = () => {
-  const {getToken} = useAuth();
-  useEffect(() => {
-    const fetchToken = async () => {
-      try {
-        const token = await getToken();
-        if (token) {
-          console.log(token);
-        }
-      } catch (error) {
-        console.error('Error fetching token:', error);
-      }
-    };
-  
-    fetchToken();
-  }, [getToken]);
+
   return (
     <ThemeProvider>
+      <Toaster position="top-center" reverseOrder={false}>
+      </Toaster>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />

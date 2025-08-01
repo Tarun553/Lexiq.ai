@@ -1,15 +1,60 @@
 import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, Loader2 } from "lucide-react";
+import axios from "axios";
+import { useAuth } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
+
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const GenerateImage = () => {
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState("realistic");
+  const [loading, setLoading] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState([]);
 
-  const handleGenerate = (e) => {
+  const { getToken } = useAuth();
+
+  const handleGenerate = async (e) => {
     e.preventDefault();
-    // Image generation logic will go here
-    alert(`Generating ${style} image with prompt: ${prompt}`);
+
+    if (!prompt.trim()) {
+      toast.error("Please enter an image description");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const { data } = await axios.post(
+        "/api/ai/generate-image",
+        { prompt, style },
+        {
+          headers: {
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        }
+      );
+
+      if (data.imageUrl) {
+        setGeneratedImages([
+          { url: data.imageUrl, prompt, style },
+          ...generatedImages,
+        ]);
+        toast.success("Image generated successfully!");
+      } else {
+        throw new Error(data.message || "Failed to generate image");
+      }
+    } catch (error) {
+      console.error("Error generating image:", error);
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to generate image. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,6 +83,7 @@ const GenerateImage = () => {
                   onChange={(e) => setPrompt(e.target.value)}
                   className="w-full px-4 py-2 border rounded-lg h-32 dark:bg-gray-700 dark:border-gray-600"
                   placeholder="Describe the image you want to generate..."
+                  disabled={loading}
                   required
                 />
               </div>
@@ -53,6 +99,7 @@ const GenerateImage = () => {
                   value={style}
                   onChange={(e) => setStyle(e.target.value)}
                   className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                  disabled={loading}
                 >
                   <option value="realistic">Realistic</option>
                   <option value="cartoon">Cartoon</option>
@@ -63,28 +110,70 @@ const GenerateImage = () => {
               </div>
               <button
                 type="submit"
-                className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                disabled={loading || !prompt.trim()}
+                className={`w-full px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                  loading || !prompt.trim()
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-purple-600 hover:bg-purple-700 text-white"
+                }`}
               >
-                Generate Image
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  "Generate Image"
+                )}
               </button>
             </form>
           </CardContent>
         </Card>
 
         {/* Right Card - Generated Images */}
-        <Card className="h-[75vh]">
+        <Card className="h-[75vh] overflow-auto">
           <CardHeader>
             <CardTitle className="text-2xl font-bold">
               Generated Images
             </CardTitle>
           </CardHeader>
-          <CardContent className="mt-10">
-            <div className="flex items-center justify-center">
-              <ImageIcon className="size-8 text-purple-400" />
-            </div>
-            <div className="text-gray-500 dark:text-gray-400 text-center py-8">
-              Your generated images will appear here
-            </div>
+          <CardContent className="mt-4 p-4">
+            {loading ? (
+              <div className="flex items-center justify-center h-32">
+                <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+              </div>
+            ) : generatedImages.length > 0 ? (
+              <div className="grid grid-cols-1 gap-6">
+                {generatedImages.map((image, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="relative aspect-square overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                      <img
+                        src={image.url}
+                        alt={image.prompt}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src =
+                            "https://via.placeholder.com/500x500?text=Image+not+found";
+                        }}
+                      />
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <p className="font-medium">Style: {image.style}</p>
+                      <p className="truncate">{image.prompt}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+                <ImageIcon className="size-12 mb-4 opacity-50" />
+                <p>No images generated yet.</p>
+                <p className="text-sm mt-2">
+                  Enter a description and click "Generate Image" to get started.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

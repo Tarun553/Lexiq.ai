@@ -10,7 +10,9 @@ dotenv.config()
 const app = express()
 await connectCloudinary()
 
-app.use(cors())
+app.use(cors({
+    origin: "http://localhost:5173"
+}))
 app.use(express.json())
 app.use(clerkMiddleware())
 
