@@ -33,6 +33,7 @@ const GenerateImage = () => {
           headers: {
             Authorization: `Bearer ${await getToken()}`,
           },
+          withCredentials: true,
         }
       );
 

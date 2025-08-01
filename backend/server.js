@@ -13,12 +13,14 @@ await connectCloudinary();
 // CORS configuration
 const allowedOrigins = [
   "http://localhost:5173", // Development
-  process.env.FRONTEND_URL, // Production
+  "https://lexiq-ai-1.onrender.com", // Production
 ].filter(Boolean); // Remove any undefined values
 
 app.use(
   cors({
     origin: function (origin, callback) {
+
+        console.log("Origin:", origin);
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
