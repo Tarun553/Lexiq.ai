@@ -12,7 +12,7 @@ await connectCloudinary();
 
 // CORS configuration
 const allowedOrigins = [
-  "https://lexiq-ai-1.onrender.com/", // Development
+  "http://localhost:5173", // Development
   process.env.FRONTEND_URL, // Production
 ].filter(Boolean); // Remove any undefined values
 
