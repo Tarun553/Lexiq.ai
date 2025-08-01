@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: lexiq-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    staticPublishPath: "./dist"
+    envVars:
+      - key: VITE_BASE_URL
+        value: https://lexiq-ai.onrender.com
+      - key: VITE_CLERK_PUBLISHABLE_KEY
+        value: your_clerk_publishable_key
+      - key: VITE_CLERK_SIGN_IN_URL
+        value: /auth
+      - key: VITE_CLERK_SIGN_UP_URL
+        value: /auth
+      - key: VITE_CLERK_AFTER_SIGN_IN_URL
+        value: /ai/dashboard
+      - key: VITE_CLERK_AFTER_SIGN_UP_URL
+        value: /ai/dashboard
