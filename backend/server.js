@@ -1,32 +1,51 @@
-import express from "express"
-import cors from "cors"
-import dotenv from "dotenv"
-import { clerkMiddleware, requireAuth } from '@clerk/express'
-import aiRouter from "./routes/ai.route.js"
-import userRouter from "./routes/user.route.js"
-import connectCloudinary from "./config/cloudinary.js"
-dotenv.config()
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { clerkMiddleware, requireAuth } from "@clerk/express";
+import aiRouter from "./routes/ai.route.js";
+import userRouter from "./routes/user.route.js";
+import connectCloudinary from "./config/cloudinary.js";
+dotenv.config();
 
-const app = express()
-await connectCloudinary()
+const app = express();
+await connectCloudinary();
 
-app.use(cors({
-    origin: "http://localhost:5173"
-}))
-app.use(express.json())
-app.use(clerkMiddleware())
+// CORS configuration
+const allowedOrigins = [
+  "http://localhost:5173", // Development
+  process.env.FRONTEND_URL, // Production
+].filter(Boolean); // Remove any undefined values
 
-// health route 
-app.get("/", (req,res)=>{
-    res.send("server is live !")
-})
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
 
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+  })
+);
 
-app.use(requireAuth())
+app.use(express.json());
+app.use(clerkMiddleware());
 
-app.use("/api/ai", aiRouter)
-app.use("/api/user", userRouter)
+// health route
+app.get("/", (req, res) => {
+  res.send("server is live!");
+});
 
-const PORT = process.env.PORT || 3000
+app.use(requireAuth());
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+app.use("/api/ai", aiRouter);
+app.use("/api/user", userRouter);
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

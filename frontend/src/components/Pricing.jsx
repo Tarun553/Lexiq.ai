@@ -1,6 +1,7 @@
 import React from 'react'
 import {PricingCard} from '../components/ui/dark-gradient-pricing'
 
+
 const Pricing = () => {
   return (
     <section className="relative overflow-hidden bg-background text-foreground mt-20">
